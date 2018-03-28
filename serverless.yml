@@ -1,0 +1,29 @@
+service: restaurant
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  stage: prod
+  region: us-east-1
+  environment:
+    NODE_ENV: ${self:provider.stage}
+
+custom:
+  # auth_arn: some_arn
+  # usage: ${self:custom.authorize_arn}, use this replace all hardcoded arn below
+
+functions:
+  optionsHandle:
+    handler: handlers/httpOptionsHandlers.handle
+    events:
+      - http:
+          path: /{any+}
+          method: options
+          cors: true
+
+  helloworld:
+    handler: handlers/general.helloworld
+    events:
+      - http:
+          path: helloworld
+          method: get
