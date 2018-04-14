@@ -13,7 +13,7 @@ module.exports.handle = (event, context, callback) => {
     let params = {
         TableName: "user",
         Item: {
-            id: ua.email,
+            id: ua.username,
             attributes: ua
         }
     };
