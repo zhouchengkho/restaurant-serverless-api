@@ -33,3 +33,5 @@ functions:
       - cognitoUserPool:
         pool: arn:aws:cognito-idp:us-east-1:570666313840:userpool/us-east-1_2eDOjYE5q
         trigger: PostConfirmation
+  LexGet:
+    handler:handlers/lex.handle
