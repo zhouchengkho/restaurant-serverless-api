@@ -27,3 +27,9 @@ functions:
       - http:
           path: helloworld
           method: get
+  postSignUp:
+    handler: handlers/postSignUp.handle
+    events:
+      - cognitoUserPool:
+        pool: arn:aws:cognito-idp:us-east-1:570666313840:userpool/us-east-1_2eDOjYE5q
+        trigger: PostConfirmation
