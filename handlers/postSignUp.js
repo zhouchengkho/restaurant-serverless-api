@@ -10,6 +10,7 @@ const dynamo = new AWS.DynamoDB.DocumentClient({
 
 module.exports.handle = (event, context, callback) => {
     let ua = event.request.userAttributes;
+    console.log(ua);
     let params = {
         TableName: "user",
         Item: {
