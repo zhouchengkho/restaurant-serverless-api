@@ -38,5 +38,5 @@ functions:
     handler: handlers/lex.handle
     events:
       - http:
-          path: helloworld
+          path: chatbot
           method: post

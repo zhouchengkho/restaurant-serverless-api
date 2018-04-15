@@ -1,4 +1,5 @@
 module.exports = {
     accessKey: " ",
-    accessSecret: ""
+    accessSecret: "",
+    yelpApi: ""
 }
