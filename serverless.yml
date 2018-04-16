@@ -40,3 +40,9 @@ functions:
       - http:
           path: chatbot
           method: post
+  lexBot:
+    handler: handlers/lexBot.handle
+    events:
+      - http:
+          path: chatbot
+          method: post
