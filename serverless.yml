@@ -38,5 +38,11 @@ functions:
     handler: handlers/lex.handle
     events:
       - http:
-          path: helloworld
+          path: lex
           method: post
+  lexBot:
+    handler: handlers/lexBot.handle
+    events:
+      - http:
+        path: lexBot
+        method: post
