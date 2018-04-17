@@ -1,7 +1,11 @@
 'use strict';
 const AWS = require('aws-sdk');
 const config = require('../config');
-const lexruntime = new AWS.LexRuntime();
+const yelp = require('yelp-fusion');
+const config = require('../config');
+const yelpApiKey = config.yelpApi;
+const client = yelp.client(yelpApiKey);
+
 
 function close(sessionAttributes, fulfillmentState, message) {
     return {
@@ -37,7 +41,35 @@ function diningSuggestions(intentRequest, callback) {
         return;
     }
 
-    callback(close(intentRequest.sessionAttributes, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
+    console.log("callback dinningSuggestion" + callback);
+
+    let searchParam = {
+        term:'restaurant',
+        location: location,
+        category:cuisine,
+        sort_by:'best_match',
+        limit:5
+    };
+
+    let resJson = {};
+
+    client.search(searchParam).then(response => {
+        let resname = response.jsonBody.businesses[0].name;
+        let phone = response.jsonBody.businesses[0].phone;
+        let address = response.jsonBody.businesses[0].location.address1;
+        let latitude = response.jsonBody.businesses[0].latitude;
+        let longitude = response.jsonBody.businesses[0].longitude;
+        resJson = {
+            "resname" : resname,
+            "phone" : phone,
+            "address" : address,
+            "latitude" : latitude,
+            "longitude" : longitude
+        };
+        console.log(resJson);
+    });
+
+    callback(close(resJson, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
 }
 
 function dispatch(intentRequest, callback) {
