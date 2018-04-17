@@ -1,11 +1,7 @@
 'use strict';
 const AWS = require('aws-sdk');
-const yelp = require('yelp-fusion');
 const config = require('../config');
-const yelpApiKey = config.yelpApi;
-const client = yelp.client(yelpApiKey);
 const lexruntime = new AWS.LexRuntime();
-
 
 function close(sessionAttributes, fulfillmentState, message) {
     return {
