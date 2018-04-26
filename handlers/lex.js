@@ -101,13 +101,16 @@ const lexruntime = new AWS.LexRuntime();
 module.exports.handle = (event, context, callback) => {
     try {
         // dispatch(event, (response) => callback(null, response));
-        let id = event.body.username;
-        let name = event.body.name;
+        console.log(event);
+        console.log("event is------");
+        console.log(JSON.parse(event.body));
+        let bd =  JSON.parse(event.body).message[0];
+        console.log(bd);
         let params = {
             botAlias: 'restBot', /* required */
             botName: 'RestBot', /* required */
-            userId: id,
-            inputText: event.body.message,
+            userId: "Vincent",
+            inputText: bd.text,
             sessionAttributes: {}
         };
         lexruntime.postText(params, function (err, data) {
@@ -115,10 +118,19 @@ module.exports.handle = (event, context, callback) => {
                 console.log(err);
                 callback(err);
             }
+            let responsBody = {
+                "data" : data.message
+            };
+            console.log(JSON.stringify(data.message));
             if(data) {
                 let response = {
-                    message : data.message
+                    "isBase64Encoded": true,
+                    "statusCode": 200,
+                    "headers": {
+                        "Content-Type":"application/x-www-form-urlencoded"},
+                    "body" : JSON.stringify(responsBody),
                 };
+                console.log(response);
                 callback(null, response)
             }
         });

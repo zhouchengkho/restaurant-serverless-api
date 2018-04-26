@@ -34,6 +34,8 @@ function diningSuggestions(intentRequest, callback) {
     const location = intentRequest.currentIntent.slots.Location;
     const cuisine = intentRequest.currentIntent.slots.Cuisine;
     const number = intentRequest.currentIntent.slots.NumberOfPeople;
+    const source = intentRequest.invocationSource;
+    let att = {};
 
     if (source === 'DialogCodeHook'){
         const outputSessionAttributes = intentRequest.sessionAttributes || {};
@@ -41,7 +43,39 @@ function diningSuggestions(intentRequest, callback) {
         return;
     }
 
-    callback(close(intentRequest.sessionAttributes, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
+    let searchParam = {
+        term:'restaurant',
+        location: location,
+        category: cuisine,
+        sort_by:'best_match',
+        limit:1
+    };
+
+    client.search(searchParam).then( response => {
+        let resname = response.jsonBody.businesses[0].name;
+        let phone = response.jsonBody.businesses[0].phone;
+        let region = response.jsonBody.region.center;
+        let address =  response.jsonBody.businesses[0].location.address1;
+        let image = response.jsonBody.businesses[0].image_url;
+        console.log(resname);
+        att = {
+            "resname" : resname,
+            "phone" : phone,
+            "region" : region,
+            "address" : address,
+            "image": image
+        }
+        console.log(att);
+        console.log(JSON.stringify(att));
+        let data = JSON.stringify(att);
+        console.log(data);
+        callback(close(data, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
+    }).catch(e => {
+        console.log(e);
+    });
+    // callback(close(att, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
+
+    // callback(close(intentRequest.sessionAttributes, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
 }
 
 function dispatch(intentRequest, callback) {

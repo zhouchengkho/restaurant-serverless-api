@@ -44,5 +44,5 @@ functions:
     handler: handlers/lexBot.handle
     events:
       - http:
-        path: lexBot
-        method: post
+          path: lexBot
+          method: post

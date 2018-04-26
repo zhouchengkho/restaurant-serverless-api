@@ -3,8 +3,8 @@ function genBaseResponse(statusCode) {
     let response = {
         headers: {
             'Access-Control-Allow-Origin': '*',
-            // 'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-            'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+            // 'Access-Control-Allow-Headers': 'Content-Type,Authorization',
             'Access-Control-Allow-Methods': 'POST,PUT,DELETE,GET,OPTIONS'
         }
     };

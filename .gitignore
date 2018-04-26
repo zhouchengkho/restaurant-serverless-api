@@ -1,3 +1,4 @@
 .idea
 config.js
 .serverless
+node_modules
