@@ -38,11 +38,11 @@ functions:
     handler: handlers/lex.handle
     events:
       - http:
-          path: chatbot
+          path: lex
           method: post
   lexBot:
     handler: handlers/lexBot.handle
     events:
       - http:
-          path: chatbot
+          path: lexBot
           method: post
