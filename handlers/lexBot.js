@@ -5,6 +5,9 @@ const config = require('../config');
 const yelpApiKey = config.yelpApi;
 const client = yelp.client(yelpApiKey);
 const lexruntime = new AWS.LexRuntime();
+const attr = require('dynamodb-data-types').AttributeValue;
+const dynamodb = new AWS.DynamoDB();
+
 
 
 function close(sessionAttributes, fulfillmentState, message) {
@@ -51,7 +54,7 @@ function diningSuggestions(intentRequest, callback) {
         limit:1
     };
 
-    client.search(searchParam).then( response => {
+    client.search(searchParam).then( (response) => {
         let resname = response.jsonBody.businesses[0].name;
         let phone = response.jsonBody.businesses[0].phone;
         let region = response.jsonBody.region.center;
@@ -66,16 +69,38 @@ function diningSuggestions(intentRequest, callback) {
             "image": image
         }
         console.log(att);
-        console.log(JSON.stringify(att));
-        let data = JSON.stringify(att);
-        console.log(data);
-        callback(close(data, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
-    }).catch(e => {
-        console.log(e);
-    });
-    // callback(close(att, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
+        // console.log(JSON.stringify(att));
+        // let data = JSON.stringify(att);
+        return att;
+    }).then((data) => {
+        data["Date"] = Date.now();
+        console.log(JSON.stringify(data));
+        let datawrap = attr.wrap(data);
+        console.log(JSON.stringify(datawrap));
+        let params = {
+            RequestItems: {
+                "restaurant": [{
+                    PutRequest: {
+                        Item: datawrap
+                    }
+                }]
+            }
+        }
 
-    // callback(close(intentRequest.sessionAttributes, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
+        console.log("data is" + JSON.stringify(params));
+        dynamodb.batchWriteItem(params, function(err, data) {
+            if (err) console.log(err, err.stack); // an error occurred
+            else     console.log(data);           // successful response
+            /*
+            data = {
+            }
+            */
+        });
+    }).catch( e => {
+        console.log("err is " + e);
+    })
+
+    callback(close(intentRequest.sessionAttributes, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
 }
 
 function dispatch(intentRequest, callback) {
