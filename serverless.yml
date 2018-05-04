@@ -46,3 +46,10 @@ functions:
       - http:
           path: lexBot
           method: post
+
+  me:
+    handler: handlers/profile.getProfile
+    events:
+      - http:
+          path: me
+          method: post
