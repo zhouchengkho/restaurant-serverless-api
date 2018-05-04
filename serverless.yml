@@ -46,3 +46,10 @@ functions:
       - http:
           path: lexBot
           method: post
+
+  preference:
+    handler: handlers/preference.handle
+    events:
+      - http:
+        path: preference
+        method: post
