@@ -1,4 +1,3 @@
-'use strict';
 const AWS = require('aws-sdk');
 const attr = require('dynamodb-data-types').AttributeValue;
 const dynamodb = new AWS.DynamoDB();
@@ -10,8 +9,9 @@ module.exports.handle = (event, context, callback) => {
         //     restaurant_id:,
         //     like: 0
         // }
-        const userId = event.user_id;
-        const restaurant_id = event.restaurant_id;
+        const body = JSON.parse(event.body);
+        const userId = body.user_id;
+        const restaurant_id = body.restaurant_id;
         const like = event.like;
 
         let obj = {
