@@ -31,7 +31,13 @@ module.exports.handle = (event, context, callback) => {
             if (err) {
                 return callback(null, ResponseBuilder.error(err));
             }
-            if (Math.random() > 0.5) {
+            if (data.hits.hits.length === 0) {
+                elasticSearchCategory("chinese").then(result => {
+                    callback(null, ResponseBuilder.success(result));
+                }).catch(err => {
+                    callback(null, ResponseBuilder.error({}));
+                })
+            } else if (Math.random() > 0.5) {
                 searchWithCategories(data.hits.hits).then(result => {
                     callback(null, ResponseBuilder.success(result));
                 }).catch(err => {
@@ -96,7 +102,7 @@ module.exports.handle = (event, context, callback) => {
                     }
                 }
             })
-            params.RequestItems[RESTAURANT_TABLE].Keys = keys;
+            params.RequestItems[RESTAURANT_TABLE].Keys = getNonDuplicateKeys(keys);
             console.log(params);
             dynamodb.batchGetItem(params, (err, data) => {
                 if (err) {
@@ -123,40 +129,54 @@ module.exports.handle = (event, context, callback) => {
                     id: {S: source.restaurant_id}
                 })
             })
-            params.RequestItems[RESTAURANT_TABLE].Keys = keys;
+            params.RequestItems[RESTAURANT_TABLE].Keys = getNonDuplicateKeys(keys);
             dynamodb.batchGetItem(params, (err, data) => {
-                let category = getMostPopularCategory(data.Responses[RESTAURANT_TABLE], prefs);
-                let options = {
-                    index: 'predictions',
-                    type: 'prediction',
-                    body: {
-                        query: {
-                            term: {
-                                category: category
-                            }
-                        },
-                        size: 5
-                    }
+                let category = "chinese";
+                if (err) {
+                    console.log(err);
+                } else {
+                    category = getMostPopularCategory(data.Responses[RESTAURANT_TABLE], prefs);
                 }
-                client.search(options, (err, result) => {
-                    let hits = result.hits.hits;
-                    if (hits.length === 0) {
-                        resolve([]);
-                    } else {
-                        let params = genDynamoRequest(hits);
-                        dynamodb.batchGetItem(params, (err, result) => {
-                            if (err) {
-                                reject(err);
-                            } else {
-                                resolve(genResponse(result.Responses[RESTAURANT_TABLE]));
-                            }
-                        })
-                    }
+                elasticSearchCategory(category).then(result => {
+                    resolve(result);
+                }).catch(err => {
+                    reject(err);
                 })
             });
         })
     }
 
+    function elasticSearchCategory(category) {
+        return new Promise((resolve, reject) => {
+            let options = {
+                index: 'predictions',
+                type: 'prediction',
+                body: {
+                    query: {
+                        term: {
+                            category: category
+                        }
+                    },
+                    size: 5
+                }
+            }
+            client.search(options, (err, result) => {
+                let hits = result.hits.hits;
+                if (hits.length === 0) {
+                    resolve([]);
+                } else {
+                    let params = genDynamoRequest(hits);
+                    dynamodb.batchGetItem(params, (err, result) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(genResponse(result.Responses[RESTAURANT_TABLE]));
+                        }
+                    })
+                }
+            })
+        });
+    }
     function getMostPopularCategory(data, prefs) {
         let votes = {};
         let prefMap = {};
@@ -189,7 +209,7 @@ module.exports.handle = (event, context, callback) => {
                 count = votes[cate];
             }
         }
-        return category;
+        return category ? category : "chinese";
     }
 
     function shouldPick() {
@@ -228,9 +248,21 @@ module.exports.handle = (event, context, callback) => {
         return {
             RequestItems: {
                 [RESTAURANT_TABLE]: {
-                    Keys: keys
+                    Keys: getNonDuplicateKeys(keys)
                 }
             }
         };
+    }
+
+    function getNonDuplicateKeys(keys) {
+        let seen = {};
+        let result = [];
+        keys.forEach(key => {
+            if (!seen[key.id.S]) {
+                result.push(key);
+                seen[key.id.S] = true;
+            }
+        })
+        return result;
     }
 };
