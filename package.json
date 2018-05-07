@@ -5,7 +5,9 @@
   "main": "config.js",
   "dependencies": {
     "aws-sdk": "^2.233.1",
+    "bluebird": "^3.5.1",
     "dynamodb-data-types": "^3.0.1",
+    "elasticsearch": "^14.2.2",
     "uuid": "^3.2.1",
     "yelp-fusion": "^2.0.3"
   },

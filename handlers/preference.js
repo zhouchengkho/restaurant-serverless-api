@@ -9,33 +9,36 @@ const dynamodb = new AWS.DynamoDB({
     secretAccessKey: config.accessSecret,
     region: "us-east-1"
 });
+const elasticsearch = require('elasticsearch');
+const client = new elasticsearch.Client({
+    host: "https://search-restaurant-skcsrfusurlykmrlyjy4tuaf5e.us-east-1.es.amazonaws.com/"
+});
 
 module.exports.handle = (event, context, callback) => {
     try {
         const body = JSON.parse(event.body);
         const userId = body.user_id;
         const restaurant_id = body.restaurant_id;
-        const like = event.like;
+        const like = body.like;
 
-        let obj = {
-            uuid: uuid.v4(),
+        let item = {
             user_id : userId,
             restaurant_id: restaurant_id,
             like: like
         };
-        let datawrap = attr.wrap(obj);
-        let params = {
-            Item: datawrap,
-            ReturnConsumedCapacity: "TOTAL",
-            TableName: TABLE
-        };
-        console.log("writing to dynamo");
-        console.log(params);
-        dynamodb.putItem(params, function(err, data) {
-            if (err) console.log(err, err.stack); // an error occurred
-            else     console.log(data);           // successful response
+
+        let bulkBody = [
+            { index:  { _index: 'preferences', _type: 'preference' } },
+            item
+        ]
+        client.bulk({
+            body: bulkBody
+        }, (err, result) => {
+            if (err) {
+                console.log(err);
+            }
             callback(null, ResponseBuilder.success({}));
-        });
+        })
     } catch (err) {
         console.log(err);
         callback(null, ResponseBuilder.error({}));

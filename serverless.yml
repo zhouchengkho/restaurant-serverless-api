@@ -13,6 +13,7 @@ custom:
   # usage: ${self:custom.authorize_arn}, use this replace all hardcoded arn below
 
 functions:
+
   optionsHandle:
     handler: handlers/httpOptionsHandlers.handle
     events:
@@ -55,8 +56,15 @@ functions:
           method: post
 
   preference:
-      handler: handlers/preference.handle
-      events:
-        - http:
-            path: preference
-            method: post
+    handler: handlers/preference.handle
+    events:
+      - http:
+          path: preference
+          method: post
+
+  recommend:
+    handler: handlers/recommend.handle
+    events:
+      - http:
+         path: recommend
+         method: post
