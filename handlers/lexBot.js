@@ -4,9 +4,6 @@ const yelp = require('yelp-fusion');
 const config = require('../config');
 const yelpApiKey = config.yelpApi;
 const client = yelp.client(yelpApiKey);
-const lexruntime = new AWS.LexRuntime();
-const attr = require('dynamodb-data-types').AttributeValue;
-const dynamodb = new AWS.DynamoDB();
 
 
 
@@ -62,7 +59,6 @@ function diningSuggestions(intentRequest, callback) {
         let region = response.jsonBody.region.center;
         let address =  response.jsonBody.businesses[0].location.address1;
         let image = response.jsonBody.businesses[0].image_url;
-        console.log(resname);
         att = {
             "resname" : resname,
             "phone" : phone,
