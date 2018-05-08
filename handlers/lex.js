@@ -105,7 +105,7 @@ module.exports.handle = (event, context, callback) => {
         console.log("event is------");
         console.log(JSON.parse(event.body));
         let bd =  JSON.parse(event.body).message[0];
-        console.log(bd);
+        console.log("bd is" + bd);
         let params = {
             botAlias: 'restBot', /* required */
             botName: 'RestBot', /* required */
@@ -118,17 +118,18 @@ module.exports.handle = (event, context, callback) => {
                 console.log(err);
                 callback(err);
             }
+            console.log("data is " + JSON.stringify(data));
             let responsBody = {
                 "data" : data.message
             };
-            console.log(JSON.stringify(data.message));
+            console.log("responsebody is " + JSON.stringify(data.message));
             if(data) {
                 let response = {
                     "isBase64Encoded": true,
                     "statusCode": 200,
                     "headers": {
                         "Content-Type":"application/x-www-form-urlencoded"},
-                    "body" : JSON.stringify(responsBody),
+                    "body" : JSON.stringify(data)
                 };
                 console.log(response);
                 callback(null, response)

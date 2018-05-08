@@ -22,6 +22,7 @@ function close(sessionAttributes, fulfillmentState, message) {
 }
 
 function delegate(sessionAttributes, slots) {
+    console.log("delegate + " + sessionAttributes);
     return {
         sessionAttributes,
         dialogAction: {
@@ -34,6 +35,7 @@ function delegate(sessionAttributes, slots) {
 
 
 function diningSuggestions(intentRequest, callback) {
+    console.log("intentRequest is" + JSON.stringify(intentRequest));
     const location = intentRequest.currentIntent.slots.Location;
     const cuisine = intentRequest.currentIntent.slots.Cuisine;
     const number = intentRequest.currentIntent.slots.NumberOfPeople;
@@ -64,43 +66,17 @@ function diningSuggestions(intentRequest, callback) {
         att = {
             "resname" : resname,
             "phone" : phone,
-            "region" : region,
+            "long" : region.longitude,
+            "lat": region.latitude,
             "address" : address,
             "image": image
         }
-        console.log(att);
-        // console.log(JSON.stringify(att));
-        // let data = JSON.stringify(att);
         return att;
-    }).then((data) => {
-        data["Date"] = Date.now();
-        console.log(JSON.stringify(data));
-        let datawrap = attr.wrap(data);
-        console.log(JSON.stringify(datawrap));
-        let params = {
-            RequestItems: {
-                "restaurant": [{
-                    PutRequest: {
-                        Item: datawrap
-                    }
-                }]
-            }
-        }
-
-        console.log("data is" + JSON.stringify(params));
-        dynamodb.batchWriteItem(params, function(err, data) {
-            if (err) console.log(err, err.stack); // an error occurred
-            else     console.log(data);           // successful response
-            /*
-            data = {
-            }
-            */
-        });
+    }).then((att) => {
+        callback(close(att, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly!' }));
     }).catch( e => {
         console.log("err is " + e);
-    })
-
-    callback(close(intentRequest.sessionAttributes, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly! Have a good day.' }));
+    });
 }
 
 function dispatch(intentRequest, callback) {
