@@ -19,7 +19,6 @@ module.exports.handle = (event, context, callback) => {
                 console.log(err);
                 callback(err);
             }
-            console.log("responsebody is " + JSON.stringify(data.message));
             if(data) {
                 let response = {
                     "isBase64Encoded": true,

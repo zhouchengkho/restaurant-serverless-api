@@ -8,6 +8,7 @@
     "bluebird": "^3.5.1",
     "dynamodb-data-types": "^3.0.1",
     "elasticsearch": "^14.2.2",
+    "random-int": "^1.0.0",
     "uuid": "^3.2.1",
     "yelp-fusion": "^2.0.3"
   },

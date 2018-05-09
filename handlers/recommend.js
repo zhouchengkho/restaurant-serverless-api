@@ -1,7 +1,5 @@
 const AWS = require('aws-sdk');
-const attr = require('dynamodb-data-types').AttributeValue;
 const config = require("../config");
-const PREF_TABLE = "restaurantPreference";
 const RESTAURANT_TABLE = "yelp-restaurants";
 const ELASTIC_PREF_INDEX = 'preferences';
 const ELASTIC_PREF_TYPE = 'preference';
@@ -25,8 +23,8 @@ module.exports.handle = (event, context, callback) => {
         let params = {
             index: ELASTIC_PREF_INDEX,
             type: ELASTIC_PREF_TYPE,
-            q: 'user_id:'+user_id
-        }
+            q: 'user_id:' + user_id
+        };
         client.search(params, (err, data) => {
             if (err) {
                 return callback(null, ResponseBuilder.error(err));
@@ -97,11 +95,11 @@ module.exports.handle = (event, context, callback) => {
                     } else if (shouldPick()) {
                         keys.push({
                             id: {S: source.restaurant_id}
-                        })
+                        });
                         count++;
                     }
                 }
-            })
+            });
             params.RequestItems[RESTAURANT_TABLE].Keys = getNonDuplicateKeys(keys);
             console.log(params);
             dynamodb.batchGetItem(params, (err, data) => {
@@ -128,7 +126,7 @@ module.exports.handle = (event, context, callback) => {
                 keys.push({
                     id: {S: source.restaurant_id}
                 })
-            })
+            });
             params.RequestItems[RESTAURANT_TABLE].Keys = getNonDuplicateKeys(keys);
             dynamodb.batchGetItem(params, (err, data) => {
                 let category = "chinese";
@@ -199,7 +197,7 @@ module.exports.handle = (event, context, callback) => {
                     votes[category]++;
                 }
             }
-        })
+        });
 
         let category = "";
         let count = -10000;
@@ -244,7 +242,7 @@ module.exports.handle = (event, context, callback) => {
             keys.push({
                 id: {S: hit['_source'].id}
             })
-        })
+        });
         return {
             RequestItems: {
                 [RESTAURANT_TABLE]: {
@@ -262,7 +260,7 @@ module.exports.handle = (event, context, callback) => {
                 result.push(key);
                 seen[key.id.S] = true;
             }
-        })
+        });
         return result;
     }
 };

@@ -3,6 +3,7 @@ const AWS = require('aws-sdk');
 const yelp = require('yelp-fusion');
 const config = require('../config');
 const yelpApiKey = config.yelpApi;
+const randomInt = require('random-int');
 const client = yelp.client(yelpApiKey);
 
 
@@ -50,23 +51,43 @@ function diningSuggestions(intentRequest, callback) {
         location: location,
         category: cuisine,
         sort_by:'best_match',
-        limit:1
+        limit:10
     };
 
+
     client.search(searchParam).then( (response) => {
-        let resname = response.jsonBody.businesses[0].name;
-        let phone = response.jsonBody.businesses[0].phone;
-        let region = response.jsonBody.region.center;
-        let address =  response.jsonBody.businesses[0].location.address1;
-        let image = response.jsonBody.businesses[0].image_url;
-        att = {
-            "resname" : resname,
-            "phone" : phone,
-            "long" : region.longitude,
-            "lat": region.latitude,
-            "address" : address,
-            "image": image
+        let len = response.jsonBody.businesses.length;
+        let restaurant = [];
+        let resObj = {};
+        let mapIndex = {};
+        for (let i = 0; i < 3; i++) {
+            let index = randomInt(len);
+            if (mapIndex[index]) {
+                i--;
+                continue;
+            }
+            mapIndex[index] = true;
+
+            let resname = response.jsonBody.businesses[index].name;
+            let phone = response.jsonBody.businesses[index].phone;
+            let lat = response.jsonBody.businesses[index].coordinates.latitude;
+            let long = response.jsonBody.businesses[index].coordinates.longitude;
+            let address =  response.jsonBody.businesses[index].location.address1;
+            let image = response.jsonBody.businesses[index].image_url;
+            resObj = {
+                "resname" : resname,
+                "phone" : phone,
+                "long" : long,
+                "lat": lat,
+                "address" : address,
+                "image": image
+            }
+            restaurant.push(resObj);
         }
+        console.log(JSON.stringify(restaurant));
+        att = {
+            restaurants: JSON.stringify(restaurant)
+        };
         return att;
     }).then((att) => {
         callback(close(att, 'Fulfilled',{ contentType: 'PlainText', content: 'You’re all set. Expect my recommendations shortly!' }));

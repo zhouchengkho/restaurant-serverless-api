@@ -1,14 +1,7 @@
 const AWS = require('aws-sdk');
-const attr = require('dynamodb-data-types').AttributeValue;
 const config = require("../config");
-const TABLE = "restaurantPreference";
 const ResponseBuilder = require('../util/ResponseBuilder');
 const uuid = require("uuid");
-const dynamodb = new AWS.DynamoDB({
-    accessKeyId: config.accessKey,
-    secretAccessKey: config.accessSecret,
-    region: "us-east-1"
-});
 const elasticsearch = require('elasticsearch');
 const client = new elasticsearch.Client({
     host: "https://search-restaurant-skcsrfusurlykmrlyjy4tuaf5e.us-east-1.es.amazonaws.com/"
