@@ -3,7 +3,7 @@ const AWS = require('aws-sdk');
 const yelp = require('yelp-fusion');
 const config = require('../config');
 const yelpApiKey = config.yelpApi;
-const randomInt = require('random-int');
+const random = require('../util/random');
 const client = yelp.client(yelpApiKey);
 
 
@@ -61,7 +61,7 @@ function diningSuggestions(intentRequest, callback) {
         let resObj = {};
         let mapIndex = {};
         for (let i = 0; i < 3; i++) {
-            let index = randomInt(len);
+            let index = random.random(len);
             if (mapIndex[index]) {
                 i--;
                 continue;

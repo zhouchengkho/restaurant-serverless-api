@@ -10,11 +10,13 @@ const dynamodb = new AWS.DynamoDB({
     secretAccessKey: config.accessSecret,
     region: "us-east-1"
 });
+const random = require("../util/random");
+
 const elasticsearch = require('elasticsearch');
 const client = new elasticsearch.Client({
     host: "https://search-restaurant-skcsrfusurlykmrlyjy4tuaf5e.us-east-1.es.amazonaws.com/"
 });
-
+const categories = ["chinese", "indian", "korean", "french", "pizza"];
 
 module.exports.handle = (event, context, callback) => {
     try {
@@ -29,8 +31,8 @@ module.exports.handle = (event, context, callback) => {
             if (err) {
                 return callback(null, ResponseBuilder.error(err));
             }
-            if (data.hits.hits.length === 0) {
-                elasticSearchCategory("chinese").then(result => {
+            if (data.hits.hits.length === 0 || Math.random() > 0.5) {
+                elasticSearchCategory(categories[random.random(categories.length)]).then(result => {
                     callback(null, ResponseBuilder.success(result));
                 }).catch(err => {
                     callback(null, ResponseBuilder.error({}));
@@ -230,9 +232,10 @@ module.exports.handle = (event, context, callback) => {
             lat: data.lat.N,
             lng: data.lng.N
         };
-        result.rating = data.rating.N;
-        result.review_count = data.review_count.N;
-        result.image_url = data.image_url.S;
+        result.rating = data.rating ? data.rating.N : 0;
+        result.review_count = data.review_count ? data.review_count.N : 0;
+        result.image_url = data.image_url ? data.image_url.S : "";
+        result.phone = data.phone ? data.phone.S : "no phone number";
         return result;
     }
 
